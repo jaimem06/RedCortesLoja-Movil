@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL_USUARIOS_UBICACIONES = 'https://serviciodeusuariosyubicaciones-ejc7emcfe4atbvde.canadacentral-01.azurewebsites.net';
+const BASE_URL_USUARIOS_UBICACIONES = 'https://serviciousuariosubicaciones-akc5c9b3b2edetg4.canadacentral-01.azurewebsites.net/';
 const BASE_URL_SUPERVISORES_NOTIFICACIONES = 'https://servicio-dpdubkhed9bac2dk.eastus-01.azurewebsites.net/';
 
 const ServiciodeUsuariosyUbicaciones = axios.create({

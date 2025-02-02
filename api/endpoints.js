@@ -5,7 +5,9 @@ import { ServiciodeUsuariosyUbicaciones, ServiciodeSupervisoresNotificacionesdeV
 export const listarUbicaciones = async () => {
   try {
     const response = await ServiciodeUsuariosyUbicaciones.get('ubicacion/listar');
-    return response.data;
+    console.log('Respuesta del backend para ubicaciones:', response.data); // Verifica la estructura de la respuesta
+    //return response.data;
+    return response.data.ubicaciones || []; 
   } catch (error) {
     console.error('Error al listar ubicaciones:', error);
     throw error;
