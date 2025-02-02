@@ -46,3 +46,14 @@ export const login = async (data) => {
     throw error;
   }
 };
+
+// Método POST para registrar el token de push
+export const registrarPushToken = async (data) => {
+  try {
+    const response = await ServiciodeSupervisoresNotificacionesdeValidacion.post('notificaciones/registrar_push_token', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al registrar el token de push:', error);
+    throw error;
+  }
+};

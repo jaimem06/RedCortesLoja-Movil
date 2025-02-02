@@ -1,48 +1,61 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { listarUsuarios } from '../api/endpoints';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import { registrarPushToken } from '../api/endpoints';
 
 const ProfileScreen = () => {
-  const [usuarios, setUsuarios] = useState([]);
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [sectorId, setSectorId] = useState('');
+  const [usuarioId, setUsuarioId] = useState('');
 
   useEffect(() => {
-    const fetchUsuarios = async () => {
-      try {
-        const data = await listarUsuarios();
-        setUsuarios(data);
-      } catch (error) {
-        console.error('Error al listar usuarios:', error);
+    const registerForPushNotifications = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permiso para notificaciones denegado');
+        return;
       }
+
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      setExpoPushToken(token);
+      console.log('Token de notificaciones:', token);
     };
 
-    fetchUsuarios();
+    registerForPushNotifications();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.row}>
-      <Text style={styles.cell}>{item.nombre}</Text>
-      <Text style={styles.cell}>{item.apellido}</Text>
-      <Text style={styles.cell}>{item.correo}</Text>
-      <Text style={styles.cell}>{item.ubicacion}</Text>
-    </View>
-  );
+  const handleRegisterToken = async () => {
+    try {
+      const data = { token: expoPushToken, sector_id: sectorId, usuario_id: usuarioId };
+      const response = await registrarPushToken(data);
+      console.log('Respuesta del backend:', response);
+    } catch (error) {
+      console.error('Error al registrar el token de push:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}></Text>
-      <View style={styles.table}>
-        <View style={[styles.row, styles.headerRow]}>
-          <Text style={styles.headerCell}>Nombre</Text>
-          <Text style={styles.headerCell}>Apellido</Text>
-          <Text style={styles.headerCell}>Correo</Text>
-          <Text style={styles.headerCell}>Ubicación</Text>
-        </View>
-        <FlatList
-          data={usuarios}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
+      <Text style={styles.title}>Registrar Token de Notificaciones</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Sector ID"
+        value={sectorId}
+        onChangeText={setSectorId}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Usuario ID"
+        value={usuarioId}
+        onChangeText={setUsuarioId}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Token"
+        value={expoPushToken}
+        editable={false}
+      />
+      <Button title="Registrar Token" onPress={handleRegisterToken} />
     </View>
   );
 };
@@ -59,33 +72,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333',
   },
-  table: {
-    borderWidth: 1,
+  input: {
+    height: 40,
     borderColor: '#ddd',
+    borderWidth: 1,
     borderRadius: 8,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    paddingHorizontal: 8,
+    marginBottom: 16,
     backgroundColor: '#fff',
-  },
-  headerRow: {
-    backgroundColor: '#f0f0f0',
-  },
-  headerCell: {
-    flex: 1,
-    padding: 12,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#333',
-  },
-  cell: {
-    flex: 1,
-    padding: 12,
-    textAlign: 'center',
-    color: '#333',
   },
 });
 

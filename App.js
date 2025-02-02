@@ -7,19 +7,17 @@ import BottomTabNavigator from './components/BottomTabNavigator';
 
 const Stack = createStackNavigator();
 
-// Configura el manejo de notificaciones
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true, // Muestra una alerta cuando llega una notificación
-    shouldPlaySound: true, // Reproduce un sonido
-    shouldSetBadge: true, // Actualiza el badge de la app
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
   }),
 });
 
 const App = () => {
   const [expoPushToken, setExpoPushToken] = useState('');
 
-  // Solicitar permisos para notificaciones
   useEffect(() => {
     const registerForPushNotifications = async () => {
       const { status } = await Notifications.requestPermissionsAsync();
@@ -28,19 +26,15 @@ const App = () => {
         return;
       }
 
-      // Obtener el token de notificaciones
       const token = (await Notifications.getExpoPushTokenAsync()).data;
       setExpoPushToken(token);
       console.log('Token de notificaciones:', token);
 
-      // Enviar el token a tu backend (aquí puedes hacer una petición POST)
-      // await sendTokenToBackend(token);
     };
 
     registerForPushNotifications();
   }, []);
 
-  // Escuchar notificaciones entrantes
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener((notification) => {
       console.log('Notificación recibida:', notification);

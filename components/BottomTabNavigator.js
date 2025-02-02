@@ -28,20 +28,20 @@ const BottomTabNavigator = () => {
         },
       })}
     >
-      <Tab.Screen 
-        name="Sectores" 
-        component={HomeScreen} 
-        options={{ headerShown: false }} 
+      <Tab.Screen
+        name="Sectores"
+        component={HomeScreen}
+        options={{ headerShown: false }}
       />
-      <Tab.Screen 
-        name="Informacion" 
-        component={ProfileScreen} 
-        options={{ headerShown: false }} 
+      <Tab.Screen
+        name="Informacion"
+        component={ProfileScreen}
+        options={{ headerShown: false }}
       />
-      <Tab.Screen 
-        name="Cortes" 
-        component={CortesScreen} 
-        options={{ headerShown: false }} 
+      <Tab.Screen
+        name="Cortes"
+        component={CortesScreen}
+        options={{ headerShown: false }}
       />
     </Tab.Navigator>
   );
