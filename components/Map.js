@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { listarUbicaciones } from '../api/endpoints';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const Map = () => {
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
   const [polygons, setPolygons] = useState([]);
+  const mapRef = React.useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -28,8 +30,8 @@ const Map = () => {
         let minLon = Number.MAX_VALUE, maxLon = Number.MIN_VALUE;
 
         const formattedPolygons = data.map((item) => {
-          const rawCoordinates = item?.geojson?.geometry?.coordinates?.[0]; // Asegurar estructura válida
-          if (!rawCoordinates) return null; // Evitar errores si falta info
+          const rawCoordinates = item?.geojson?.geometry?.coordinates?.[0]; 
+          if (!rawCoordinates) return null; 
 
           const coordinates = rawCoordinates.map(([longitude, latitude]) => ({ latitude, longitude }));
 
@@ -41,14 +43,14 @@ const Map = () => {
           });
 
           return { coordinates, name: item.nombre };
-        }).filter(Boolean); // Elimina valores `null`
+        }).filter(Boolean); 
 
         setPolygons(formattedPolygons);
 
         setRegion({
           latitude: (minLat + maxLat) / 2,
           longitude: (minLon + maxLon) / 2,
-          latitudeDelta: Math.abs(maxLat - minLat) * 1.2, // Ajuste menor para mejor vista
+          latitudeDelta: Math.abs(maxLat - minLat) * 1.2,
           longitudeDelta: Math.abs(maxLon - minLon) * 1.2,
         });
       } catch (error) {
@@ -56,6 +58,17 @@ const Map = () => {
       }
     })();
   }, []);
+
+  const centerMap = () => {
+    if (location && mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+  };
 
   if (!region) {
     return (
@@ -75,7 +88,12 @@ const Map = () => {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} region={region} onRegionChangeComplete={setRegion}>
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        region={region}
+        onRegionChangeComplete={setRegion}
+      >
         {location && (
           <Marker
             coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
@@ -93,6 +111,11 @@ const Map = () => {
           />
         ))}
       </MapView>
+
+      {/* Botón flotante para centrar la ubicación */}
+      <TouchableOpacity style={styles.button} onPress={centerMap}>
+        <MaterialIcons name="my-location" size={24} color="white" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -100,6 +123,17 @@ const Map = () => {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: '100%', height: '100%' },
+  button: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#007AFF',
+    padding: 10,
+    borderRadius: 30,
+    elevation: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export default Map;

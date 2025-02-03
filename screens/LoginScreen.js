@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import LoginStyles from '../styles/LoginStyles'; // Importa los estilos
-import { login } from '../api/endpoints'; // Importa el método login del archivo endpoint.js
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { CommonActions } from '@react-navigation/native'; // Importa para resetear navegación
+import LoginStyles from '../styles/LoginStyles';
+import { login } from '../api/endpoints';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -9,25 +10,22 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      const data = {
-        correo: username,
-        contraseña: password,
-      };
-
-      console.log('Datos enviados al backend:', data);  // Verifica los datos enviados
-      console.log('Respuesta del backend:', response);  // Imprime la respuesta completa
+      const data = { correo: username, contraseña: password };
 
       const response = await login(data);
 
       if (response.code === 200) {
-        // Autenticación exitosa, navega a la pantalla de inicio
-        navigation.navigate('Home');
+        // 🚀 Reemplaza el historial de navegación para evitar volver al login
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          })
+        );
       } else {
-        // Error de autenticación, muestra un mensaje
-        Alert.alert('Error', response.datos.error || 'Correo o contraseña incorrectos');
+        Alert.alert('Error', 'Correo o contraseña incorrectos');
       }
     } catch (error) {
-      console.error('Error al iniciar sesión:', error.response ? error.response.data : error.message);
       Alert.alert('Error', 'Hubo un problema al iniciar sesión. Intenta de nuevo.');
     }
   };
