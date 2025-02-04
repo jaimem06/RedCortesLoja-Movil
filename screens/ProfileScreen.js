@@ -72,7 +72,7 @@ const ProfileScreen = () => {
     try {
       const data = { 
         corte_id: corte.external_id, 
-        respuesta: respuesta ? 1 : 0  // Convertir true/false a 1/0
+        respuesta  // Enviar directamente el booleano
       };
       const response = await enviarRespuestaNotificacion(data);
       console.log('Respuesta del backend:', response);

@@ -1,28 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { listarCortes, enviarRespuestaNotificacion } from '../api/endpoints';
 
 const CortesScreen = () => {
   const [cortes, setCortes] = useState([]);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+
+  const fetchCortes = useCallback(async () => {
+    try {
+      const data = await listarCortes();
+      setCortes(data.cortes);
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Error al listar cortes:', error);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchCortes = async () => {
-      try {
-        const data = await listarCortes();
-        setCortes(data.cortes);
-      } catch (error) {
-        console.error('Error al listar cortes:', error);
-      }
-    };
+    fetchCortes(); // Cargar datos inicialmente
 
-    fetchCortes();
-  }, []);
+    // Actualizar cada 30 segundos
+    const interval = setInterval(() => {
+      fetchCortes();
+    }, 30000);
+
+    return () => clearInterval(interval); // Limpiar intervalo al desmontar
+  }, [fetchCortes]);
 
   const handleCorteResponse = async (corteId, respuesta) => {
     try {
       const data = { 
         corte_id: corteId, 
-        respuesta: respuesta ? 1 : 0
+        respuesta  // Enviar directamente el booleano
       };
       console.log('Enviando respuesta:', data);
       const response = await enviarRespuestaNotificacion(data);
@@ -35,9 +44,7 @@ const CortesScreen = () => {
           [{ text: 'OK' }]
         );
       } else if (response.success) {
-        // Actualizar la lista después de enviar la respuesta
-        const data2 = await listarCortes();
-        setCortes(data2.cortes);
+        fetchCortes(); // Actualizar lista después de enviar respuesta
       }
     } catch (error) {
       console.error('Error al enviar la respuesta:', error);
