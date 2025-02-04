@@ -42,14 +42,26 @@ export const listarUsuarios = async () => {
 export const listarCortes = async () => {
   try {
     const response = await ServiciodeSupervisoresNotificacionesdeValidacion.get('cortes/cortes');
+    console.log('✅ Respuesta del backend para cortes:', JSON.stringify(response.data, null, 2));
     return response.data;
   } catch (error) {
-    console.error('❌ Error al listar Cortes:', error);
+    console.error('❌ Error al listar cortes:', error);
     return [];
   }
 };
 
-// Método POST para iniciar sesión
+// Método GET para obtener nombres de sectores
+export const obtenerNombresSectores = async () => {
+  try {
+    const response = await ServiciodeUsuariosyUbicaciones.get('/ubicacion/nombres_sectores');
+    console.log('✅ Respuesta del backend para nombres de sectores:', JSON.stringify(response.data, null, 2));
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener nombres de sectores:', error);
+    return [];
+  }
+};
+
 // Método POST para iniciar sesión
 export const login = async (data) => {
   try {
@@ -73,6 +85,21 @@ export const registrarPushToken = async (data) => {
     return {
       success: false,
       message: "No se pudo registrar el token de notificaciones.",
+    };
+  }
+};
+
+// Método POST para enviar la respuesta de la notificación
+export const enviarRespuestaNotificacion = async (data) => {
+  try {
+    console.log('📡 Enviando datos a notificaciones/respuesta_notificacion:', data);
+    const response = await ServiciodeSupervisoresNotificacionesdeValidacion.post('notificaciones/respuesta_notificacion', data);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error('❌ Error al enviar la respuesta de la notificación:', error);
+    return {
+      success: false,
+      message: "No se pudo enviar la respuesta de la notificación.",
     };
   }
 };

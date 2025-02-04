@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Notifications from 'expo-notifications';
+import { Provider as PaperProvider } from 'react-native-paper';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
-import { Provider as PaperProvider } from 'react-native-paper';
 import BottomTabNavigator from './components/BottomTabNavigator';
 
 const Stack = createStackNavigator();

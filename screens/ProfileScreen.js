@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import * as Notifications from 'expo-notifications';
-import { registrarPushToken } from '../api/endpoints';
+import { registrarPushToken, obtenerNombresSectores, listarCortes, enviarRespuestaNotificacion } from '../api/endpoints';
+import styles from '../styles/ProfileScreenStyles';
 
 const ProfileScreen = () => {
   const [expoPushToken, setExpoPushToken] = useState('');
   const [sectorId, setSectorId] = useState('');
   const [usuarioId, setUsuarioId] = useState('');
+  const [sectores, setSectores] = useState([]);
+  const [corte, setCorte] = useState(null);
 
   useEffect(() => {
     const registerForPushNotifications = async () => {
@@ -24,6 +28,36 @@ const ProfileScreen = () => {
     registerForPushNotifications();
   }, []);
 
+  useEffect(() => {
+    const fetchSectores = async () => {
+      try {
+        const data = await obtenerNombresSectores();
+        setSectores(data);
+      } catch (error) {
+        console.error('Error al obtener nombres de sectores:', error);
+      }
+    };
+
+    fetchSectores();
+  }, []);
+
+  useEffect(() => {
+    const fetchCorte = async () => {
+      if (sectorId) {
+        try {
+          const response = await listarCortes();
+          const cortes = response.cortes;
+          const corteFiltrado = cortes.find(corte => corte.sector === sectorId);
+          setCorte(corteFiltrado);
+        } catch (error) {
+          console.error('Error al listar cortes:', error);
+        }
+      }
+    };
+
+    fetchCorte();
+  }, [sectorId]);
+
   const handleRegisterToken = async () => {
     try {
       const data = { token: expoPushToken, sector_id: sectorId, usuario_id: usuarioId };
@@ -34,53 +68,54 @@ const ProfileScreen = () => {
     }
   };
 
+  const handleCorteResponse = async (respuesta) => {
+    try {
+      const data = { corte_id: corte.external_id, respuesta };
+      const response = await enviarRespuestaNotificacion(data);
+      console.log('Respuesta del backend:', response);
+    } catch (error) {
+      console.error('Error al enviar la respuesta de la notificación:', error);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registrar Token de Notificaciones</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Sector ID"
-        value={sectorId}
-        onChangeText={setSectorId}
-      />
+    <ScrollView contentContainerStyle={styles.container}>
+      <Picker
+        selectedValue={sectorId}
+        onValueChange={(itemValue) => setSectorId(itemValue)}
+        style={styles.picker}
+        itemStyle={styles.pickerItem}
+      >
+        {sectores.map((sector, index) => (
+          <Picker.Item key={index} label={sector} value={sector} />
+        ))}
+      </Picker>
       <TextInput
         style={styles.input}
         placeholder="Usuario ID"
         value={usuarioId}
         onChangeText={setUsuarioId}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Token"
-        value={expoPushToken}
-        editable={false}
-      />
-      <Button title="Registrar Token" onPress={handleRegisterToken} />
-    </View>
+      <Button title="Registrar Sector para recibir Notificaciones" onPress={handleRegisterToken} />
+      {corte && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Corte en {corte.sector}</Text>
+          <Text style={styles.cardText}>Fecha: {new Date(corte.fechaReporte).toLocaleDateString()}</Text>
+          <Text style={styles.cardText}>Descripción: {corte.tipoCorte}</Text>
+          <Text style={styles.cardText}>Estado: {corte.estado}</Text>
+          <Text style={styles.cardText}>¿Este corte sucedió en su sector?</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={[styles.button, styles.buttonYes]} onPress={() => handleCorteResponse(true)}>
+              <Text style={styles.buttonText}>Sí</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, styles.buttonNo]} onPress={() => handleCorteResponse(false)}>
+              <Text style={styles.buttonText}>No</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+    </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#f8f8f8',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-    textAlign: 'center',
-    color: '#333',
-  },
-  input: {
-    height: 40,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-  },
-});
 
 export default ProfileScreen;
