@@ -4,22 +4,22 @@ import { ServiciodeUsuariosyUbicaciones, ServiciodeSupervisoresNotificacionesdeV
 export const register = async (data) => {
   try {
     const response = await ServiciodeUsuariosyUbicaciones.post('usuario/crear', data);
-    console.log("📡 Petición enviada:", data);  // <-- Agrega esto
-    return response.data;
+    console.log("📡 Petición enviada:", data);
+    return { success: true, data: response.data };
   } catch (error) {
     console.error("❌ Error en el backend:", error.response?.data || error.message);
-    throw error;
+    return {
+      success: false,
+      message: error.response?.data?.message || "Error en el registro. Inténtalo de nuevo.",
+    };
   }
 };
-
 
 // Método GET para listar ubicaciones
 export const listarUbicaciones = async () => {
   try {
     const response = await ServiciodeUsuariosyUbicaciones.get('ubicacion/listar');
     console.log('✅ Respuesta del backend para ubicaciones:', JSON.stringify(response.data, null, 2));
-    
-    // Devuelve directamente response.data si es un array
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error('❌ Error al listar ubicaciones:', error);
@@ -34,7 +34,7 @@ export const listarUsuarios = async () => {
     return response.data;
   } catch (error) {
     console.error('❌ Error al listar Usuarios:', error);
-    throw error;
+    return [];
   }
 };
 
@@ -45,18 +45,21 @@ export const listarCortes = async () => {
     return response.data;
   } catch (error) {
     console.error('❌ Error al listar Cortes:', error);
-    throw error;
+    return [];
   }
 };
 
 // Método POST para iniciar sesión
+// Método POST para iniciar sesión
 export const login = async (data) => {
   try {
     const response = await ServiciodeUsuariosyUbicaciones.post('home/login', data);
-    return response.data;
+    return { success: true, data: response.data };
   } catch (error) {
-    console.error('❌ Error al iniciar sesión:', error);
-    throw error;
+    return {
+      success: false,
+      message: "Correo o contraseña incorrectos.",
+    };
   }
 };
 
@@ -64,9 +67,12 @@ export const login = async (data) => {
 export const registrarPushToken = async (data) => {
   try {
     const response = await ServiciodeSupervisoresNotificacionesdeValidacion.post('notificaciones/registrar_push_token', data);
-    return response.data;
+    return { success: true, data: response.data };
   } catch (error) {
     console.error('❌ Error al registrar el token de push:', error);
-    throw error;
+    return {
+      success: false,
+      message: "No se pudo registrar el token de notificaciones.",
+    };
   }
 };

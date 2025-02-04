@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet, BackHandler, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Map from '../components/Map';
 
 const HomeScreen = ({ navigation }) => {
@@ -9,20 +10,26 @@ const HomeScreen = ({ navigation }) => {
     React.useCallback(() => {
       const onBackPress = () => {
         Alert.alert(
-          "Salir",
-          "¿Deseas cerrar la aplicación?",
+          "Cerrar sesión",
+          "¿Deseas cerrar sesión y volver a iniciar?",
           [
             { text: "Cancelar", style: "cancel" },
-            { text: "Salir", onPress: () => BackHandler.exitApp() }
+            { 
+              text: "Sí", 
+              onPress: async () => {
+                await AsyncStorage.removeItem("token"); // Elimina el token de sesión
+                navigation.replace("RedCortesLoja"); // Redirige al login
+              } 
+            }
           ]
         );
-        return true; // Bloquea el botón atrás
+        return true; // Bloquea el botón atrás para evitar que el usuario retroceda
       };
 
       BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
       return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }, [])
+    }, [navigation])
   );
 
   return (

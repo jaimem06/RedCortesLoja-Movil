@@ -17,20 +17,32 @@ const ServiciodeSupervisoresNotificacionesdeValidacion = axios.create({
   },
 });
 
+// Función para manejar errores solo en la terminal, sin afectar la UI
+const handleErrorResponse = (error) => {
+  if (error.response) {
+    // Si hay una respuesta del servidor con error
+    console.log(`⚠️ [${error.response.status}] Error en la petición:`, error.response.data);
+  } else if (error.request) {
+    // Si no hay respuesta del servidor
+    console.log('⚠️ No se recibió respuesta del servidor:', error.request);
+  } else {
+    // Otros errores
+    console.log('⚠️ Error en la configuración de la petición:', error.message);
+  }
+  
+  // Retornar un error genérico sin afectar la UI
+  return Promise.reject({ message: 'Hubo un problema con la solicitud.' });
+};
+
+// Aplicar interceptor de respuesta a ambos servicios
 ServiciodeUsuariosyUbicaciones.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.error('Error en la petición del backend (Usuarios y Ubicaciones):', error);
-    return Promise.reject(error);
-  }
+  handleErrorResponse
 );
 
 ServiciodeSupervisoresNotificacionesdeValidacion.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.error('Error en la petición del backend (Supervisores y Notificaciones de Validación):', error);
-    return Promise.reject(error);
-  }
+  handleErrorResponse
 );
 
 export { ServiciodeUsuariosyUbicaciones, ServiciodeSupervisoresNotificacionesdeValidacion };

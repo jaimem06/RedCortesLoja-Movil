@@ -9,22 +9,19 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    try {
-      const data = { correo: username, contraseña: password };
-      const response = await login(data);
+    const data = { correo: username, contraseña: password };
+    const result = await login(data);
 
-      if (response.code === 200) {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'Home' }],
-          })
-        );
-      } else {
-        Alert.alert('Error', 'Correo o contraseña incorrectos');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Hubo un problema al iniciar sesión. Intenta de nuevo.');
+    if (result.success) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        })
+      );
+    } else {
+      // ✅ Mostramos solo un mensaje sin imprimir errores en la consola
+      Alert.alert("Error", result.message);
     }
   };
 
@@ -50,7 +47,6 @@ const LoginScreen = ({ navigation }) => {
         <Text style={LoginStyles.buttonText}>Ingresar</Text>
       </TouchableOpacity>
 
-      {/* Botón para ir a la pantalla de registro */}
       <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
         <Text style={LoginStyles.footer}>¿No tienes una cuenta? <Text style={LoginStyles.link}>Regístrate</Text></Text>
       </TouchableOpacity>
