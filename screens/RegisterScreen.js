@@ -39,12 +39,16 @@ const RegisterScreen = ({ navigation }) => {
       Alert.alert('Error', 'Todos los campos son obligatorios');
       return;
     }
-
+  
     try {
       const data = { nombre, apellido, correo, contraseña, ubicacion };
       const response = await register(data);
-      const message = Array.isArray(response) ? response[0]?.message : response.message;
-
+      
+      console.log('📌 Respuesta del servidor:', response); // Depuración
+  
+      // Extraer correctamente el mensaje desde response.data
+      const message = response.data[0]?.message;
+  
       if (message === 'Usuario creado exitosamente') {
         Alert.alert('Éxito', 'Registro exitoso', [{ text: 'OK', onPress: () => navigation.goBack() }]);
       } else {
@@ -55,6 +59,8 @@ const RegisterScreen = ({ navigation }) => {
       Alert.alert('Error', 'Hubo un problema con el registro. Inténtalo nuevamente.');
     }
   };
+  
+  
 
   return (
     <LinearGradient colors={['#6a11cb', '#2575fc']} style={RegisterStyles.container}>
