@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   picker: {
-    height: 50,
+    height: Platform.OS === 'ios' ? 200 : 50,
     borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 8,

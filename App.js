@@ -30,8 +30,6 @@ const App = () => {
 
       const token = (await Notifications.getExpoPushTokenAsync()).data;
       setExpoPushToken(token);
-      console.log('Token de notificaciones:', token);
-
     };
 
     registerForPushNotifications();
@@ -39,7 +37,6 @@ const App = () => {
 
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener((notification) => {
-      console.log('Notificación recibida:', notification);
     });
 
     return () => subscription.remove();

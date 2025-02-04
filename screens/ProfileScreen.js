@@ -70,7 +70,10 @@ const ProfileScreen = () => {
 
   const handleCorteResponse = async (respuesta) => {
     try {
-      const data = { corte_id: corte.external_id, respuesta };
+      const data = { 
+        corte_id: corte.external_id, 
+        respuesta: respuesta ? 1 : 0  // Convertir true/false a 1/0
+      };
       const response = await enviarRespuestaNotificacion(data);
       console.log('Respuesta del backend:', response);
     } catch (error) {

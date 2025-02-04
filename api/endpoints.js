@@ -19,7 +19,6 @@ export const register = async (data) => {
 export const listarUbicaciones = async () => {
   try {
     const response = await ServiciodeUsuariosyUbicaciones.get('ubicacion/listar');
-    console.log('✅ Respuesta del backend para ubicaciones:', JSON.stringify(response.data, null, 2));
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error('❌ Error al listar ubicaciones:', error);
@@ -42,7 +41,6 @@ export const listarUsuarios = async () => {
 export const listarCortes = async () => {
   try {
     const response = await ServiciodeSupervisoresNotificacionesdeValidacion.get('cortes/cortes');
-    console.log('✅ Respuesta del backend para cortes:', JSON.stringify(response.data, null, 2));
     return response.data;
   } catch (error) {
     console.error('❌ Error al listar cortes:', error);
@@ -54,7 +52,6 @@ export const listarCortes = async () => {
 export const obtenerNombresSectores = async () => {
   try {
     const response = await ServiciodeUsuariosyUbicaciones.get('/ubicacion/nombres_sectores');
-    console.log('✅ Respuesta del backend para nombres de sectores:', JSON.stringify(response.data, null, 2));
     return response.data;
   } catch (error) {
     console.error('❌ Error al obtener nombres de sectores:', error);

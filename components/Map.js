@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ActivityIndicator, Platform, Alert } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { listarUbicaciones } from '../api/endpoints';
@@ -19,7 +19,7 @@ const Map = () => {
       // Pedir permisos de ubicación
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        console.error('Permiso de ubicación denegado');
+        Alert.alert('Permiso de ubicación denegado', 'Por favor, habilita los permisos de ubicación en la configuración de tu dispositivo.');
         setLoading(false);
         return;
       }
@@ -110,6 +110,8 @@ const Map = () => {
         style={styles.map}
         region={region}
         onRegionChangeComplete={setRegion}
+        showsUserLocation={true}
+        showsMyLocationButton={Platform.OS === 'android'}
       >
         {location && (
           <Marker
@@ -130,9 +132,11 @@ const Map = () => {
       </MapView>
 
       {/* Botón flotante para centrar la ubicación */}
-      <TouchableOpacity style={styles.button} onPress={centerMap}>
-        <MaterialIcons name="my-location" size={24} color="white" />
-      </TouchableOpacity>
+      {Platform.OS === 'ios' && (
+        <TouchableOpacity style={styles.button} onPress={centerMap}>
+          <MaterialIcons name="my-location" size={24} color="white" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

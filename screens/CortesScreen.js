@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { listarCortes } from '../api/endpoints';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { listarCortes, enviarRespuestaNotificacion } from '../api/endpoints';
 
 const CortesScreen = () => {
   const [cortes, setCortes] = useState([]);
@@ -18,18 +18,73 @@ const CortesScreen = () => {
     fetchCortes();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={styles.sector}>{item.sector}</Text>
-      <Text style={styles.tipoCorte}>{item.tipoCorte}</Text>
-      <Text style={styles.estado}>{item.estado}</Text>
-      <Text style={styles.fechaReporte}>{new Date(item.fechaReporte).toLocaleDateString()}</Text>
-    </View>
-  );
+  const handleCorteResponse = async (corteId, respuesta) => {
+    try {
+      const data = { 
+        corte_id: corteId, 
+        respuesta: respuesta ? 1 : 0
+      };
+      console.log('Enviando respuesta:', data);
+      const response = await enviarRespuestaNotificacion(data);
+      console.log('Respuesta del backend:', response);
+      
+      if (response.data?.message?.includes('tiempo de respuesta ha finalizado')) {
+        Alert.alert(
+          'Tiempo expirado',
+          'El tiempo para responder a este corte ha finalizado.',
+          [{ text: 'OK' }]
+        );
+      } else if (response.success) {
+        // Actualizar la lista después de enviar la respuesta
+        const data2 = await listarCortes();
+        setCortes(data2.cortes);
+      }
+    } catch (error) {
+      console.error('Error al enviar la respuesta:', error);
+      Alert.alert('Error', 'No se pudo enviar la respuesta. Intente nuevamente.');
+    }
+  };
+
+  const renderItem = ({ item }) => {
+    // Calcular si han pasado más de 15 minutos
+    const createdAt = new Date(item.fechaReporte);
+    const now = new Date();
+    const timeDiff = now - createdAt;
+    const minutesPassed = timeDiff / (1000 * 60);
+    const isExpired = minutesPassed > 15;
+
+    return (
+      <View style={styles.card}>
+        <Text style={styles.sector}>{item.sector}</Text>
+        <Text style={styles.tipoCorte}>{item.tipoCorte}</Text>
+        <Text style={styles.estado}>{item.estado}</Text>
+        <Text style={styles.fechaReporte}>{new Date(item.fechaReporte).toLocaleDateString()}</Text>
+        
+        {item.estado === 'pendiente' && !isExpired && (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={[styles.button, styles.buttonYes]} 
+              onPress={() => handleCorteResponse(item.external_id, true)}
+            >
+              <Text style={styles.buttonText}>Sí</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.button, styles.buttonNo]} 
+              onPress={() => handleCorteResponse(item.external_id, false)}
+            >
+              <Text style={styles.buttonText}>No</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {item.estado === 'pendiente' && isExpired && (
+          <Text style={styles.expiredText}>Tiempo de respuesta expirado</Text>
+        )}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}></Text>
       <FlatList
         data={cortes}
         renderItem={renderItem}
@@ -44,12 +99,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#f8f8f8',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-    textAlign: 'center',
-    color: '#333',
   },
   card: {
     backgroundColor: '#fff',
@@ -79,6 +128,36 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#aaa',
     marginTop: 8,
+    marginBottom: 8,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  button: {
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  buttonYes: {
+    backgroundColor: '#28a745',
+  },
+  buttonNo: {
+    backgroundColor: '#dc3545',
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  expiredText: {
+    color: '#dc3545',
+    fontSize: 14,
+    fontStyle: 'italic',
+    marginTop: 8,
+    textAlign: 'center',
   },
 });
 
