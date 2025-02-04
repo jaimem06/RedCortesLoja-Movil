@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { CommonActions } from '@react-navigation/native'; // Importa para resetear navegación
+import { CommonActions } from '@react-navigation/native';
 import LoginStyles from '../styles/LoginStyles';
 import { login } from '../api/endpoints';
 
@@ -11,11 +11,9 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     try {
       const data = { correo: username, contraseña: password };
-
       const response = await login(data);
 
       if (response.code === 200) {
-        // 🚀 Reemplaza el historial de navegación para evitar volver al login
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
@@ -51,7 +49,11 @@ const LoginScreen = ({ navigation }) => {
       <TouchableOpacity style={LoginStyles.button} onPress={handleLogin}>
         <Text style={LoginStyles.buttonText}>Ingresar</Text>
       </TouchableOpacity>
-      <Text style={LoginStyles.footer}>¿No tienes una cuenta? Regístrate</Text>
+
+      {/* Botón para ir a la pantalla de registro */}
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <Text style={LoginStyles.footer}>¿No tienes una cuenta? <Text style={LoginStyles.link}>Regístrate</Text></Text>
+      </TouchableOpacity>
     </View>
   );
 };

@@ -1,16 +1,29 @@
-import api from './api';
 import { ServiciodeUsuariosyUbicaciones, ServiciodeSupervisoresNotificacionesdeValidacion } from './api';
+
+// Método POST para registrar usuarios
+export const register = async (data) => {
+  try {
+    const response = await ServiciodeUsuariosyUbicaciones.post('usuario/crear', data);
+    console.log("📡 Petición enviada:", data);  // <-- Agrega esto
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error en el backend:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 
 // Método GET para listar ubicaciones
 export const listarUbicaciones = async () => {
   try {
     const response = await ServiciodeUsuariosyUbicaciones.get('ubicacion/listar');
-    console.log('Respuesta del backend para ubicaciones:', response.data); // Verifica la estructura de la respuesta
-    //return response.data;
-    return response.data.ubicaciones || []; 
+    console.log('✅ Respuesta del backend para ubicaciones:', JSON.stringify(response.data, null, 2));
+    
+    // Devuelve directamente response.data si es un array
+    return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
-    console.error('Error al listar ubicaciones:', error);
-    throw error;
+    console.error('❌ Error al listar ubicaciones:', error);
+    return [];
   }
 };
 
@@ -20,7 +33,7 @@ export const listarUsuarios = async () => {
     const response = await ServiciodeUsuariosyUbicaciones.get('usuario/obtener');
     return response.data;
   } catch (error) {
-    console.error('Error al listar Usuarios:', error);
+    console.error('❌ Error al listar Usuarios:', error);
     throw error;
   }
 };
@@ -31,7 +44,7 @@ export const listarCortes = async () => {
     const response = await ServiciodeSupervisoresNotificacionesdeValidacion.get('cortes/cortes');
     return response.data;
   } catch (error) {
-    console.error('Error al listar Cortes:', error);
+    console.error('❌ Error al listar Cortes:', error);
     throw error;
   }
 };
@@ -42,7 +55,7 @@ export const login = async (data) => {
     const response = await ServiciodeUsuariosyUbicaciones.post('home/login', data);
     return response.data;
   } catch (error) {
-    console.error('Error al iniciar sesión:', error);
+    console.error('❌ Error al iniciar sesión:', error);
     throw error;
   }
 };
@@ -53,7 +66,7 @@ export const registrarPushToken = async (data) => {
     const response = await ServiciodeSupervisoresNotificacionesdeValidacion.post('notificaciones/registrar_push_token', data);
     return response.data;
   } catch (error) {
-    console.error('Error al registrar el token de push:', error);
+    console.error('❌ Error al registrar el token de push:', error);
     throw error;
   }
 };

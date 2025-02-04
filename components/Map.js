@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { StyleSheet, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { listarUbicaciones } from '../api/endpoints';
@@ -9,56 +9,81 @@ const Map = () => {
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
   const [polygons, setPolygons] = useState([]);
-  const mapRef = React.useRef(null);
+  const [loading, setLoading] = useState(true);
+  const mapRef = useRef(null);
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
+
+      // Pedir permisos de ubicación
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         console.error('Permiso de ubicación denegado');
+        setLoading(false);
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      // Obtener la ubicación del usuario
+      let userLocation = await Location.getCurrentPositionAsync({});
+      setLocation(userLocation);
 
       try {
+        // Obtener datos de ubicaciones desde la API
         const data = await listarUbicaciones();
-        console.log('Datos recibidos del servicio:', JSON.stringify(data, null, 2));
+        console.log('📌 Datos recibidos del servicio:', JSON.stringify(data, null, 2));
 
         let minLat = Number.MAX_VALUE, maxLat = Number.MIN_VALUE;
         let minLon = Number.MAX_VALUE, maxLon = Number.MIN_VALUE;
 
         const formattedPolygons = data.map((item) => {
-          const rawCoordinates = item?.geojson?.geometry?.coordinates?.[0]; 
-          if (!rawCoordinates) return null; 
+          if (!item.geojson || !item.geojson.geometry || !item.geojson.geometry.coordinates) {
+            console.warn("⚠️ GeoJSON inválido:", item);
+            return null;
+          }
 
-          const coordinates = rawCoordinates.map(([longitude, latitude]) => ({ latitude, longitude }));
+          let rawCoordinates = item.geojson.geometry.coordinates;
+          if (item.geojson.geometry.type === "Polygon") {
+            rawCoordinates = rawCoordinates[0]; // Tomamos el primer anillo del polígono
+          }
 
-          coordinates.forEach(({ latitude, longitude }) => {
+          if (!Array.isArray(rawCoordinates)) {
+            console.warn("⚠️ Coordenadas no son un array válido:", rawCoordinates);
+            return null;
+          }
+
+          const coordinates = rawCoordinates.map(([longitude, latitude]) => {
             if (latitude < minLat) minLat = latitude;
             if (latitude > maxLat) maxLat = latitude;
             if (longitude < minLon) minLon = longitude;
             if (longitude > maxLon) maxLon = longitude;
+            return { latitude, longitude };
           });
 
           return { coordinates, name: item.nombre };
-        }).filter(Boolean); 
+        }).filter(Boolean);
 
+        console.log("📍 Polígonos formateados:", JSON.stringify(formattedPolygons, null, 2));
         setPolygons(formattedPolygons);
 
-        setRegion({
-          latitude: (minLat + maxLat) / 2,
-          longitude: (minLon + maxLon) / 2,
-          latitudeDelta: Math.abs(maxLat - minLat) * 1.2,
-          longitudeDelta: Math.abs(maxLon - minLon) * 1.2,
-        });
+        if (formattedPolygons.length > 0) {
+          setRegion({
+            latitude: (minLat + maxLat) / 2,
+            longitude: (minLon + maxLon) / 2,
+            latitudeDelta: Math.abs(maxLat - minLat) * 1.2,
+            longitudeDelta: Math.abs(maxLon - minLon) * 1.2,
+          });
+        }
+
       } catch (error) {
-        console.error('Error al listar ubicaciones:', error);
+        console.error('❌ Error al listar ubicaciones:', error);
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
 
+  // Función para centrar el mapa en la ubicación del usuario
   const centerMap = () => {
     if (location && mapRef.current) {
       mapRef.current.animateToRegion({
@@ -70,18 +95,10 @@ const Map = () => {
     }
   };
 
-  if (!region) {
+  if (loading) {
     return (
-      <View style={styles.container}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: -3.99004,
-            longitude: -79.225554,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
-          }}
-        />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
       </View>
     );
   }
@@ -106,7 +123,7 @@ const Map = () => {
             key={index}
             coordinates={polygon.coordinates}
             strokeColor="#FF0000"
-            fillColor="rgba(255, 0, 0, 0.3)"
+            fillColor="rgba(0, 255, 34, 0.3)"
             strokeWidth={2}
           />
         ))}
@@ -133,6 +150,11 @@ const styles = StyleSheet.create({
     elevation: 5,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
