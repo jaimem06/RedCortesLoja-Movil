@@ -1,4 +1,11 @@
 import { ServiciodeUsuariosyUbicaciones, ServiciodeSupervisoresNotificacionesdeValidacion } from './api';
+import { getExpoPushTokenAsync } from 'expo-notifications'; // Asegúrate de importar correctamente
+import * as Notifications from 'expo-notifications';
+
+
+
+
+
 
 // Método POST para registrar usuarios
 export const register = async (data) => {
@@ -47,6 +54,57 @@ export const listarCortes = async () => {
     return [];
   }
 };
+
+
+
+// Método para obtener el token push
+export const obtenerTokenPush = async () => {
+  try {
+    // Obtén el token push desde Expo Notifications
+    const tokenPush = await getExpoPushTokenAsync();
+    const token = tokenPush.data; // Esto es el token en formato correcto
+
+    console.log('Token de notificación:', token); // Verifica que el token es correcto
+
+    return token; // Retorna el token
+  } catch (error) {
+    console.error('❌ Error al obtener el token push:', error.response ? error.response.data : error.message);
+    throw new Error('Error al obtener el token push'); // Lanza error si no se puede obtener el token
+  }
+};
+
+
+export const listarCortesPorSector = async () => {
+  try {
+    // Obtén el token push desde Expo Notifications
+    const tokenPush = await getExpoPushTokenAsync();
+    const token = tokenPush.data; // Esto es el token en formato correcto
+
+    console.log('Token de notificación:', token); // Verifica que el token es correcto
+
+    // Realiza la solicitud al backend pasando el token como Authorization
+    const response = await ServiciodeSupervisoresNotificacionesdeValidacion.get(
+      'cortes/cortes_por_sector',
+      {
+        headers: {
+          Authorization: `ExponentPushToken[${token}]`, // Agregar el token a la cabecera Authorization
+        },
+      }
+    );
+
+    console.log('Respuesta de la API:', response.data); // Verifica que la respuesta contiene los cortes
+
+    return response.data; // Devuelve la respuesta con los cortes
+  } catch (error) {
+    console.error('❌ Error al listar cortes por sector:', error.response ? error.response.data : error.message);
+    return { cortes: [] }; // Cambié esto para asegurarme que la respuesta tenga la estructura esperada
+  }
+};
+
+
+
+
+
 
 // Método GET para obtener nombres de sectores
 export const obtenerNombresSectores = async () => {

@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const BASE_URL_USUARIOS_UBICACIONES = 'https://serviciousuariosubicaciones-akc5c9b3b2edetg4.canadacentral-01.azurewebsites.net/';
 const BASE_URL_SUPERVISORES_NOTIFICACIONES = 'https://servicio-dpdubkhed9bac2dk.eastus-01.azurewebsites.net/';
+//const BASE_URL_SUPERVISORES_NOTIFICACIONES = 'http://192.168.101.7:5000/';
 
 const ServiciodeUsuariosyUbicaciones = axios.create({
   baseURL: BASE_URL_USUARIOS_UBICACIONES,
