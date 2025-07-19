@@ -1,56 +1,59 @@
 import { StyleSheet } from 'react-native';
+import { theme } from './globalTheme';
 
 const RegisterStyles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-      },
-      formContainer: {
+        backgroundColor: theme.colors.background,
+    },
+    formContainer: {
         width: '90%',
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 15,
-        elevation: 10,
-      },
-      title: {
-        fontSize: 26,
-        fontWeight: 'bold',
-        color: '#333',
+        backgroundColor: theme.colors.surface,
+        padding: theme.spacing.lg,
+        borderRadius: theme.borderRadius.lg,
+        ...theme.shadows.lg,
+    },
+    title: {
+        fontSize: theme.typography.fontSize['3xl'],
+        fontFamily: theme.typography.fontFamily.headingBold,
+        color: theme.colors.textPrimary,
         textAlign: 'center',
-        marginBottom: 20,
-      },
-      input: {
-        marginBottom: 10,
-        backgroundColor: 'white',
-      },
-      label: {
-        fontSize: 16,
-        marginBottom: 5,
-        color: '#333',
-      },
-      picker: {
-        backgroundColor: '#f0f0f0',
-        borderRadius: 10,
-        marginBottom: 15,
-      },
-      buttonGps: {
-        marginVertical: 10,
-        backgroundColor: '#ff9800',
-      },
-      buttonRegister: {
-        backgroundColor: '#4caf50',
-      },
-      footer: {
-        marginTop: 15,
-        fontSize: 14,
-        color: '#666',
+        marginBottom: theme.spacing.lg,
+    },
+    input: {
+        marginBottom: theme.spacing.sm + 2,
+        backgroundColor: theme.colors.surface,
+    },
+    label: {
+        fontSize: theme.typography.fontSize.base,
+        marginBottom: theme.spacing.xs + 1,
+        color: theme.colors.textPrimary,
+        fontFamily: theme.typography.fontFamily.medium,
+    },
+    picker: {
+        backgroundColor: theme.colors.surfaceSecondary,
+        borderRadius: theme.borderRadius.md + 2,
+        marginBottom: theme.spacing.md - 1,
+    },
+    buttonGps: {
+        marginVertical: theme.spacing.sm + 2,
+        backgroundColor: theme.colors.warning,
+    },
+    buttonRegister: {
+        backgroundColor: theme.colors.success,
+    },
+    footer: {
+        marginTop: theme.spacing.md + 1,
+        fontSize: theme.typography.fontSize.sm,
+        color: theme.colors.textSecondary,
         textAlign: 'center',
-      },
-      link: {
-        color: '#007BFF',
-        fontWeight: 'bold',
-      },
-    });
+    },
+    link: {
+        color: theme.colors.secondary,
+        fontFamily: theme.typography.fontFamily.semiBold,
+    },
+});
 
 export default RegisterStyles;

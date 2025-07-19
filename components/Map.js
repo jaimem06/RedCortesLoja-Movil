@@ -4,6 +4,7 @@ import MapView, { Marker, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { listarUbicaciones } from '../api/endpoints';
 import { MaterialIcons } from '@expo/vector-icons';
+import { theme } from '../styles/globalTheme';
 
 const Map = () => {
   const [location, setLocation] = useState(null);
@@ -98,7 +99,7 @@ const Map = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -146,12 +147,12 @@ const styles = StyleSheet.create({
   map: { width: '100%', height: '100%' },
   button: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#007AFF',
-    padding: 10,
-    borderRadius: 30,
-    elevation: 5,
+    bottom: theme.spacing.lg,
+    right: theme.spacing.lg,
+    backgroundColor: theme.colors.secondary,
+    padding: theme.spacing.sm + 2,
+    borderRadius: theme.borderRadius.full,
+    ...theme.shadows.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -159,6 +160,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: theme.colors.background,
   },
 });
 

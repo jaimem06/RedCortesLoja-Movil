@@ -1,49 +1,53 @@
 import { StyleSheet } from 'react-native';
+import { theme } from './globalTheme';
 
 const LoginStyles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5', // Fondo claro y minimalista
-    padding: 20,
+    backgroundColor: theme.colors.background,
+    padding: theme.spacing.lg,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333', // Color oscuro para el título
-    marginBottom: 40,
+    fontSize: theme.typography.fontSize['4xl'],
+    fontFamily: theme.typography.fontFamily.headingBold,
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing['2xl'],
   },
   input: {
     width: '100%',
     height: 50,
-    backgroundColor: '#fff', // Fondo blanco para los inputs
-    borderColor: '#ddd', // Borde sutil
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 20,
-    fontSize: 16,
-    color: '#333', // Color oscuro para el texto
+    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+    fontSize: theme.typography.fontSize.base,
+    fontFamily: theme.typography.fontFamily.regular,
+    color: theme.colors.textPrimary,
   },
   button: {
     width: '100%',
     height: 50,
-    backgroundColor: '#6200ee', // Color morado elegante
+    backgroundColor: theme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-    marginTop: 20,
+    borderRadius: theme.borderRadius.md,
+    marginTop: theme.spacing.lg,
+    ...theme.shadows.sm,
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff', // Texto blanco para el botón
+    fontSize: theme.typography.fontSize.lg,
+    fontFamily: theme.typography.fontFamily.semiBold,
+    color: theme.colors.textLight,
   },
   footer: {
-    marginTop: 30,
-    fontSize: 14,
-    color: '#666', // Texto gris para el footer
+    marginTop: theme.spacing.xl,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.regular,
+    color: theme.colors.textSecondary,
   },
 });
 

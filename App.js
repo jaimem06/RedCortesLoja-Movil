@@ -3,6 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Notifications from 'expo-notifications';
 import { Provider as PaperProvider } from 'react-native-paper';
+import { ThemeProvider } from './styles';
+import FontLoader from './components/FontLoader';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import BottomTabNavigator from './components/BottomTabNavigator';
@@ -43,15 +45,19 @@ const App = () => {
   }, []);
 
   return (
-    <PaperProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="RedCortesLoja">
-          <Stack.Screen name="RedCortesLoja" component={LoginScreen} />
-          <Stack.Screen name="Registro" component={RegisterScreen} />
-          <Stack.Screen name="Home" component={BottomTabNavigator} options={{ headerShown: false }} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <ThemeProvider>
+      <FontLoader>
+        <PaperProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="RedCortesLoja">
+              <Stack.Screen name="RedCortesLoja" component={LoginScreen} />
+              <Stack.Screen name="Registro" component={RegisterScreen} />
+              <Stack.Screen name="Home" component={BottomTabNavigator} options={{ headerShown: false }} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
+      </FontLoader>
+    </ThemeProvider>
   );
 };
 
